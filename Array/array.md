@@ -237,3 +237,182 @@ function smallerNumbersThanCurrent(nums) {
 **Space Complexity:** O(n)
 
 ---
+
+## Q6. Find All Numbers Disappeared in an Array
+
+**Difficulty:** Easy
+
+### Problem Statement
+Given an array `nums` of `n` integers where `nums[i]` is in the range `[1, n]`, return an array of all the integers in the range `[1, n]` that do not appear in `nums`.
+
+### Example
+```
+Input: nums = [4,3,2,7,8,2,3,1]
+Output: [5,6]
+Explanation: Numbers from 1 to 8 should be present. 5 and 6 are missing.
+
+Input: nums = [1,1]
+Output: [2]
+Explanation: Numbers from 1 to 2 should be present. 2 is missing.
+```
+
+### Constraints
+- `n == nums.length`
+- `1 <= n <= 10^5`
+- `1 <= nums[i] <= n`
+
+### Logic Explanation
+
+**Using Set**
+- Create a Set with all numbers from the array (removes duplicates automatically)
+- Loop from 1 to n and check which numbers are not in the Set
+- Those missing numbers are our answer
+
+
+### Solution
+
+**Using Set**
+```javascript
+function findDisappearedNumbers(nums) {
+    const n = nums.length;
+    const present = new Set(nums);
+    const result = [];
+    
+    for (let i = 1; i <= n; i++) {
+        if (!present.has(i)) {
+            result.push(i);
+        }
+    }
+    
+    return result;
+}
+```
+
+**Time Complexity:** O(n)  
+**Space Complexity:** O(n)
+
+---
+
+## Q7. Build an Array With Stack Operations
+
+**Difficulty:** Medium
+
+### Problem Statement
+You are given an integer array `target` and an integer `n`.
+
+You have an empty stack with two operations:
+- `"Push"`: pushes an integer to the top of the stack
+- `"Pop"`: removes the integer on the top of the stack
+
+You also have a stream of integers in the range `[1, n]` (in order: 1, 2, 3, ..., n).
+
+Use the stack operations to make the stack equal to `target`. Return the operations needed.
+
+### Rules
+- If the stream number matches target, push it
+- If the stream number doesn't match target, push then pop (to skip it)
+- Stop when stack equals target (don't process remaining stream numbers)
+
+### Example
+```
+Input: target = [1,3], n = 3
+Output: ["Push","Push","Pop","Push"]
+Explanation: 
+- Read 1 from stream → in target → Push → stack: [1]
+- Read 2 from stream → NOT in target → Push, Pop → stack: [1]
+- Read 3 from stream → in target → Push → stack: [1,3]
+
+Input: target = [1,2,3], n = 3
+Output: ["Push","Push","Push"]
+Explanation: All numbers 1,2,3 are in target, just push them all.
+
+Input: target = [1,2], n = 4
+Output: ["Push","Push"]
+Explanation: After building [1,2], we stop. Don't read 3 and 4.
+```
+
+### Constraints
+- `1 <= target.length <= 100`
+- `1 <= n <= 100`
+- `1 <= target[i] <= n`
+- `target` is strictly increasing
+
+### Logic Explanation
+
+The key insight is that we process the stream sequentially (1, 2, 3, ...) and for each target element:
+
+1. **Skip unwanted numbers:** For any stream number before the target number, we Push then Pop (to skip it)
+2. **Add target numbers:** When stream number matches target element, just Push
+3. **Stop when done:** Once we've added all target elements, stop (ignore remaining stream)
+
+**Strategy:**
+- Use a counter (`current`) to track which stream number we're at
+- For each target element:
+  - While current < target element: Push & Pop (skip these numbers)
+  - When current == target element: Push (add it to stack)
+  - Increment current
+
+### Solution
+```javascript
+function buildArray(target, n) {
+    const result = [];
+    let current = 1;  // Current stream number (starts from 1)
+    
+    for (let i = 0; i < target.length; i++) {
+        // Skip numbers that are not in target
+        while (current < target[i]) {
+            result.push("Push");  // Read from stream and push
+            result.push("Pop");   // Not in target, so pop it
+            current++;            // Move to next stream number
+        }
+        
+        // Current number is in target, just push it
+        result.push("Push");
+        current++;  // Move to next stream number
+    }
+    
+    return result;
+}
+```
+
+**Time Complexity:** O(target's last element)  
+**Space Complexity:** O(operations count)
+
+### Code Walkthrough
+
+**Example:** `target = [1,3], n = 3`
+```
+Initial state: current = 1, result = []
+
+Iteration 1 (target[0] = 1):
+  - while (1 < 1)? NO, skip while loop
+  - Push to result → result = ["Push"]
+  - current = 2
+
+Iteration 2 (target[1] = 3):
+  - while (2 < 3)? YES
+    - Push, Pop → result = ["Push", "Push", "Pop"]
+    - current = 3
+  - while (3 < 3)? NO, exit while loop
+  - Push to result → result = ["Push", "Push", "Pop", "Push"]
+  - current = 4
+
+Return: ["Push", "Push", "Pop", "Push"]
+```
+
+**Visual representation:**
+```
+Stream: 1 → 2 → 3 → (4, not processed)
+        ↓   ↓   ↓
+Target: 1   X   3   (2 is not in target, so Push-Pop)
+Ops:   Push Push Push
+            Pop
+```
+
+### Key Points
+- Stream numbers come in sequential order (1, 2, 3, ...)
+- If stream number is in target → just Push
+- If stream number is NOT in target → Push then Pop (to skip it)
+- Stop processing when all target elements are added
+
+---
